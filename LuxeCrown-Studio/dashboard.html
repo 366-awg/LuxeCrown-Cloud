@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Dashboard · LuxeCrown Studio</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div id="nav-placeholder"></div>
+<div id="toast-placeholder"></div>
+
+<div class="page-wrap">
+  <!-- HERO STRIP -->
+  <div class="img-bg-section" style="padding:60px;position:relative;overflow:hidden;min-height:220px;display:flex;align-items:flex-end">
+    <div class="bg-layer" style="background-image:url('https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=1200&q=80')"></div>
+    <div class="bg-overlay" style="background:linear-gradient(to top,rgba(10,10,10,1) 0%,rgba(10,10,10,.6) 100%)"></div>
+    <div style="position:relative;z-index:1">
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">My Account</div>
+      <div id="dashGreeting" style="font-family:var(--font-head);font-size:36px;font-weight:800;letter-spacing:-1.5px;color:var(--white)"></div>
+      <div style="font-size:13px;color:var(--gray);margin-top:4px">Manage your bookings and profile</div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div style="display:grid;grid-template-columns:280px 1fr;gap:0;max-width:1200px;margin:0 auto;padding:40px 40px 80px">
+    <!-- SIDEBAR -->
+    <div>
+      <div id="profileCard" style="background:var(--dark2);border:1px solid rgba(200,169,110,.1);border-radius:var(--radius-lg);padding:24px;margin-right:28px;margin-bottom:16px"></div>
+      <div style="background:var(--dark2);border:1px solid rgba(200,169,110,.1);border-radius:var(--radius-lg);overflow:hidden;margin-right:28px">
+        <div onclick="showTab('bookings')" id="stab-bookings" class="sidebar-link active" style="border-radius:0"><span class="sidebar-icon">📅</span> My Bookings</div>
+        <div onclick="showTab('profile')" id="stab-profile" class="sidebar-link" style="border-radius:0"><span class="sidebar-icon">👤</span> Edit Profile</div>
+        <div onclick="window.location.href='booking.html'" class="sidebar-link" style="border-radius:0"><span class="sidebar-icon">➕</span> New Booking</div>
+        <div onclick="logout()" class="sidebar-link" style="border-radius:0;color:var(--red)"><span class="sidebar-icon">🚪</span> Logout</div>
+      </div>
+    </div>
+
+    <!-- TAB CONTENT -->
+    <div>
+      <!-- BOOKINGS TAB -->
+      <div id="tab-bookings">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div>
+            <div style="font-family:var(--font-head);font-size:24px;font-weight:800;letter-spacing:-1px;color:var(--white)">My Bookings</div>
+            <div style="font-size:13px;color:var(--gray);margin-top:2px">All your appointments</div>
+          </div>
+          <a href="booking.html"><button class="btn btn-gold" style="padding:10px 22px;font-size:13px">+ Book Again</button></a>
+        </div>
+        <div class="chips" id="bookingFilters">
+          <div class="chip active" onclick="filterMyBookings('all',this)">All</div>
+          <div class="chip" onclick="filterMyBookings('confirmed',this)">Confirmed</div>
+          <div class="chip" onclick="filterMyBookings('pending',this)">Pending</div>
+        </div>
+        <div id="myBookingsList"></div>
+      </div>
+
+      <!-- PROFILE TAB -->
+      <div id="tab-profile" style="display:none">
+        <div style="font-family:var(--font-head);font-size:24px;font-weight:800;letter-spacing:-1px;color:var(--white);margin-bottom:20px">Edit Profile</div>
+        <div class="panel">
+          <div class="panel-head"><div class="panel-title">Personal Information</div></div>
+          <div class="panel-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input class="form-input" type="text" id="profName">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone Number</label>
+                <input class="form-input" type="tel" id="profPhone">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input class="form-input" type="email" id="profEmail">
+            </div>
+            <div class="form-group">
+              <label class="form-label">New Password (leave blank to keep current)</label>
+              <input class="form-input" type="password" id="profPass" placeholder="Min 8 characters">
+            </div>
+            <button class="btn btn-gold" onclick="saveProfile()" style="padding:12px 28px">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer-placeholder"></div>
+<script src="js/app.js"></script>
+<script>
+document.getElementById('nav-placeholder').outerHTML = NAV_HTML;
+document.getElementById('footer-placeholder').outerHTML = FOOTER_HTML;
+document.getElementById('toast-placeholder').outerHTML = TOAST_HTML;
+renderNav('dashboard');
+initCursor();
+
+if (!isLoggedIn()) window.location.href = 'login.html?redirect=dashboard.html';
+
+const session = getSession();
+let myFilter = 'all';
+
+// Greeting
+document.getElementById('dashGreeting').textContent = `Welcome, ${session?.name?.split(' ')[0]} 👋`;
+
+// Profile card
+document.getElementById('profileCard').innerHTML = `
+  <div style="text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:rgba(200,169,110,.15);border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-size:26px;font-weight:800;color:var(--gold);margin:0 auto 12px">${session?.name?.charAt(0).toUpperCase()}</div>
+    <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--white)">${session?.name}</div>
+    <div style="font-size:12px;color:var(--gray);margin-top:2px">${session?.email}</div>
+    ${session?.role === 'admin' ? `<div class="badge badge-danger" style="margin-top:8px">Admin</div>` : `<div class="badge badge-success" style="margin-top:8px">Member</div>`}
+  </div>
+`;
+
+// Profile form
+document.getElementById('profName').value = session?.name || '';
+document.getElementById('profPhone').value = session?.phone || '';
+document.getElementById('profEmail').value = session?.email || '';
+
+function showTab(tab) {
+  document.getElementById('tab-bookings').style.display = tab==='bookings'?'block':'none';
+  document.getElementById('tab-profile').style.display = tab==='profile'?'block':'none';
+  document.querySelectorAll('[id^="stab-"]').forEach(el => el.classList.remove('active'));
+  document.getElementById('stab-'+tab)?.classList.add('active');
+}
+
+function filterMyBookings(f, el) {
+  myFilter = f;
+  document.querySelectorAll('#bookingFilters .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderMyBookings();
+}
+
+function renderMyBookings() {
+  const all = getBookings().filter(b => b.userId === session?.id);
+  const filtered = myFilter === 'all' ? all : all.filter(b => b.status === myFilter);
+  const el = document.getElementById('myBookingsList');
+
+  if (!filtered.length) {
+    el.innerHTML = `<div style="text-align:center;padding:60px 40px;background:var(--dark2);border:1px solid rgba(200,169,110,.08);border-radius:var(--radius-lg)">
+      <div style="font-size:40px;margin-bottom:12px">📅</div>
+      <div style="font-family:var(--font-head);font-size:18px;color:var(--white);margin-bottom:6px">No bookings yet</div>
+      <div style="font-size:13px;color:var(--gray);margin-bottom:20px">Book your first appointment and it will appear here.</div>
+      <a href="booking.html"><button class="btn btn-gold" style="padding:12px 26px">Book Now →</button></a>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = filtered.sort((a,b) => b.created - a.created).map(b => {
+    const svc = getServices().find(s => s.id === b.serviceId);
+    return `
+    <div style="background:var(--dark2);border:1px solid rgba(200,169,110,.1);border-radius:var(--radius-lg);padding:22px;margin-bottom:14px;display:grid;grid-template-columns:auto 1fr auto;gap:20px;align-items:center">
+      <div style="width:52px;height:52px;background:rgba(200,169,110,.1);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px">${svc?.icon||'✂️'}</div>
+      <div>
+        <div style="font-family:var(--font-head);font-size:16px;font-weight:700;color:var(--white);margin-bottom:3px">${b.service}</div>
+        <div style="font-size:12px;color:var(--gray)">📅 ${b.date} · ⏰ ${b.time}</div>
+        <div style="font-size:11px;color:var(--gray);margin-top:3px;font-family:var(--font-mono)">Ref: ${b.txnId}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--gold);margin-bottom:6px">KES ${b.amount.toLocaleString()}</div>
+        <div class="badge badge-${b.status==='confirmed'?'success':b.status==='pending'?'pending':'danger'}">${b.status}</div>
+        ${b.payStatus==='paid'?'<div class="badge badge-success" style="margin-top:4px">💚 Paid</div>':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveProfile() {
+  const name = document.getElementById('profName').value.trim();
+  const phone = document.getElementById('profPhone').value.trim();
+  const email = document.getElementById('profEmail').value.trim();
+  const pass = document.getElementById('profPass').value;
+  if (!name||!email) return showToast('Required fields','Name and email are required.','⚠️');
+  const users = getUsers();
+  const idx = users.findIndex(u => u.id === session.id);
+  if (idx === -1) return;
+  users[idx] = { ...users[idx], name, phone, email, ...(pass.length >= 8 ? {password: pass} : {}) };
+  saveUsers(users);
+  setSession(users[idx]);
+  showToast('Profile Updated','Your details have been saved ✅');
+}
+
+renderMyBookings();
+</script>
+</body>
+</html>

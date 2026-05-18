@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Book Appointment · LuxeCrown Studio</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div id="nav-placeholder"></div>
+<div id="toast-placeholder"></div>
+
+<!-- HERO -->
+<div class="hero-full" style="min-height:44vh;padding-top:0">
+  <div class="hero-bg-img" style="background-image:url('https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=1400&q=80')"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><div class="pulse-dot"></div> Available Today</div>
+    <h1 class="hero-title" style="font-size:clamp(38px,5vw,68px)">Book Your <em>Appointment</em></h1>
+    <p class="hero-sub" style="font-size:14px">Pick a service, choose your slot, pay via M-Pesa. Done in 2 minutes.</p>
+  </div>
+</div>
+
+<!-- BOOKING BODY -->
+<section class="section" style="max-width:860px;margin:0 auto;padding:60px 40px 100px">
+  <div class="booking-stepper" id="stepper">
+    <div class="bstep active" id="tab1">1. Service</div>
+    <div class="bstep" id="tab2">2. Date & Time</div>
+    <div class="bstep" id="tab3">3. Details & Pay</div>
+    <div class="bstep" id="tab4">4. Confirmed</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-pane active" id="step1">
+    <div class="step-title">Choose a Service</div>
+    <div class="step-sub">Select the service you'd like to book</div>
+    <div id="svcList"></div>
+    <div class="step-footer">
+      <a href="services.html"><button class="btn-step-back">← Browse Services</button></a>
+      <button class="btn-step-next" onclick="goStep(1,2)">Pick Date & Time →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-pane" id="step2">
+    <div class="step-title">Date & Time</div>
+    <div class="step-sub">Business hours: 9:00 AM – 4:00 PM · 1-hour slots</div>
+    <div class="section-label" style="margin-bottom:12px">Select Date</div>
+    <div class="cal-strip" id="calStrip"></div>
+    <div class="section-label" style="margin-bottom:12px">Available Time Slots</div>
+    <div class="time-grid" id="timeGrid"></div>
+    <div class="step-footer">
+      <button class="btn-step-back" onclick="goStep(2,1)">← Back</button>
+      <button class="btn-step-next" onclick="goStep(2,3)">Enter Details →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="step-pane" id="step3">
+    <div class="step-title">Your Details & M-Pesa</div>
+    <div class="step-sub">Confirm your info and pay via Safaricom Daraja</div>
+
+    <!-- Summary -->
+    <div style="background:var(--dark2);border:1px solid rgba(200,169,110,.12);border-radius:var(--radius);padding:20px;margin-bottom:20px" id="summaryBox"></div>
+
+    <!-- M-Pesa box -->
+    <div class="mpesa-box" id="mpesaBox">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:22px">
+        <div class="mpesa-logo">M-PESA</div>
+        <div>
+          <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--white)">STK Push Payment</div>
+          <div style="font-size:12px;color:var(--gray)">You will receive a prompt on your phone</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" type="text" id="custName" placeholder="Brian Mutua">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address (for confirmation)</label>
+        <input class="form-input" type="email" id="custEmail" placeholder="you@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">M-Pesa Phone Number</label>
+        <input class="form-input" type="tel" id="mpesaNum" placeholder="e.g. 0712 345 678" maxlength="13">
+      </div>
+      <div style="background:rgba(0,166,81,.07);border:1px solid rgba(0,166,81,.2);border-radius:10px;padding:14px;margin-bottom:18px">
+        <div style="font-size:12px;color:rgba(0,166,81,.9);font-family:var(--font-mono)">🔒 Secure · Powered by Safaricom Daraja API · Sandbox mode</div>
+      </div>
+      <button class="pay-btn" onclick="initiatePayment()">💚 Pay with M-Pesa</button>
+    </div>
+    <div class="step-footer" style="justify-content:flex-start">
+      <button class="btn-step-back" onclick="goStep(3,2)">← Back</button>
+    </div>
+  </div>
+
+  <!-- STEP 4: Success -->
+  <div class="step-pane" id="step4">
+    <div style="text-align:center;padding:40px 0">
+      <div class="success-icon">✅</div>
+      <div class="step-title" style="text-align:center">Booking Confirmed! 🎉</div>
+      <div class="step-sub" style="text-align:center;margin-bottom:32px">Your appointment is set. See you soon!</div>
+      <div id="confirmTicket" style="background:var(--dark2);border:1px solid rgba(200,169,110,.15);border-radius:var(--radius-lg);padding:28px;text-align:left;margin-bottom:28px;max-width:480px;margin-inline:auto"></div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+        <a href="dashboard.html"><button class="btn btn-gold" style="padding:13px 28px">View My Bookings →</button></a>
+        <a href="index.html"><button class="btn btn-outline-gold" style="padding:13px 28px">Back to Home</button></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<div id="lightbox-placeholder"></div>
+<script src="js/app.js"></script>
+<script>
+document.getElementById('nav-placeholder').outerHTML = NAV_HTML;
+document.getElementById('footer-placeholder').outerHTML = FOOTER_HTML;
+document.getElementById('lightbox-placeholder').outerHTML = LIGHTBOX_HTML;
+document.getElementById('toast-placeholder').outerHTML = TOAST_HTML;
+renderNav('booking');
+initCursor();
+
+// Auth gate
+if (!isLoggedIn()) {
+  window.location.href = 'login.html?redirect=booking.html';
+}
+
+const session = getSession();
+const TIME_SLOTS = ['9:00 AM','10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+let booking = { service: null, date: null, time: null };
+
+// Pre-select service from URL param
+const params = new URLSearchParams(window.location.search);
+const preServiceId = params.get('service');
+if (preServiceId) {
+  const svcs = getServices();
+  booking.service = svcs.find(s => s.id === preServiceId) || null;
+}
+
+// --- Render Services List ---
+function renderSvcList() {
+  const svcs = getServices();
+  document.getElementById('svcList').innerHTML = svcs.map(s => `
+    <div class="svc-opt ${booking.service?.id === s.id ? 'selected' : ''}" onclick="selectSvc('${s.id}')">
+      <div class="svc-opt-icon">${s.icon}</div>
+      <div style="flex:1">
+        <div class="svc-opt-name">${s.name}</div>
+        <div class="svc-opt-meta">${s.category} · ${s.duration}</div>
+      </div>
+      <div class="svc-opt-price">KES ${s.price.toLocaleString()}</div>
+      ${booking.service?.id === s.id ? '<div style="color:var(--gold);font-size:18px">✓</div>' : ''}
+    </div>
+  `).join('');
+}
+
+function selectSvc(id) {
+  booking.service = getServices().find(s => s.id === id);
+  renderSvcList();
+}
+
+// --- Calendar ---
+function renderCalendar() {
+  const today = new Date();
+  let html = '';
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    const dateStr = d.toDateString();
+    const isSun = d.getDay() === 0;
+    const sel = booking.date === dateStr;
+    html += `<div class="cal-day ${sel ? 'sel' : ''} ${isSun ? 'past' : ''}" onclick="${isSun ? '' : `selectDate('${dateStr}')`}" title="${isSun?'Closed on Sundays':''}">
+      <div class="cal-day-name">${DAYS[d.getDay()]}</div>
+      <div class="cal-num">${d.getDate()}</div>
+    </div>`;
+  }
+  document.getElementById('calStrip').innerHTML = html;
+}
+
+function selectDate(dateStr) {
+  booking.date = dateStr;
+  booking.time = null;
+  renderCalendar();
+  renderTimeSlots();
+}
+
+// --- Time Slots ---
+function renderTimeSlots() {
+  if (!booking.date) {
+    document.getElementById('timeGrid').innerHTML = `<div style="grid-column:span 4;color:var(--gray);font-size:14px;padding:16px 0">Please select a date first.</div>`;
+    return;
+  }
+  document.getElementById('timeGrid').innerHTML = TIME_SLOTS.map(t => {
+    const booked = isSlotBooked(booking.date, t);
+    const sel = booking.time === t;
+    return `<div class="time-slot ${booked ? 'booked' : ''} ${sel ? 'sel' : ''}" onclick="${booked ? '' : `selectTime('${t}')`}">
+      ${t}${booked ? '<br><span style="font-size:9px;opacity:.6">Booked</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function selectTime(t) {
+  booking.time = t;
+  renderTimeSlots();
+}
+
+// --- Summary ---
+function renderSummary() {
+  const el = document.getElementById('summaryBox');
+  if (!booking.service) return;
+  el.innerHTML = `
+    <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold);letter-spacing:.1em;margin-bottom:14px">BOOKING SUMMARY</div>
+    <div class="summ-row"><span class="summ-lbl">Service</span><span class="summ-val">${booking.service.icon} ${booking.service.name}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Date</span><span class="summ-val">${booking.date}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Time Slot</span><span class="summ-val">${booking.time}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Duration</span><span class="summ-val">${booking.service.duration}</span></div>
+    <div class="summ-row"><span class="summ-lbl" style="font-weight:600">Total Amount</span><span class="summ-val gold">KES ${booking.service.price.toLocaleString()}</span></div>
+  `;
+  // Pre-fill name and email from session
+  if (session) {
+    document.getElementById('custName').value = session.name || '';
+    document.getElementById('custEmail').value = session.email || '';
+    document.getElementById('mpesaNum').value = session.phone || '';
+  }
+}
+
+// --- Step Navigation ---
+function goStep(from, to) {
+  if (to > from) {
+    if (from === 1 && !booking.service) return showToast('Select a Service','Please choose a service to continue.','⚠️');
+    if (from === 2 && !booking.date) return showToast('Select a Date','Please pick a date.','⚠️');
+    if (from === 2 && !booking.time) return showToast('Select a Time','Please pick a time slot.','⚠️');
+  }
+  document.getElementById('step'+from).classList.remove('active');
+  document.getElementById('tab'+from).classList.remove('active');
+  if (to > from) document.getElementById('tab'+from).classList.add('done');
+  else document.getElementById('tab'+from).classList.remove('done');
+  document.getElementById('step'+to).classList.add('active');
+  document.getElementById('tab'+to).classList.add('active');
+  if (to === 3) renderSummary();
+  window.scrollTo({ top: 300, behavior: 'smooth' });
+}
+
+// --- M-Pesa Payment ---
+function initiatePayment() {
+  const name = document.getElementById('custName').value.trim();
+  const email = document.getElementById('custEmail').value.trim();
+  const phone = document.getElementById('mpesaNum').value.trim();
+  if (!name) return showToast('Name required','Please enter your full name.','⚠️');
+  if (!phone) return showToast('Phone required','Enter your M-Pesa number.','⚠️');
+  if (!/^(07|01|2547|2541)\d{7,}$/.test(phone.replace(/\s/g,''))) return showToast('Invalid Number','Enter a valid Safaricom number.','⚠️');
+
+  // Show pending
+  document.getElementById('mpesaBox').innerHTML = `
+    <div style="text-align:center;padding:28px">
+      <div class="spinner"></div>
+      <div style="font-family:var(--font-head);font-size:20px;font-weight:700;color:var(--white);margin-bottom:8px">STK Push Sent!</div>
+      <div style="font-size:14px;color:var(--gray);line-height:1.8">Check your phone <strong style="color:var(--white)">${phone}</strong><br>Enter your M-Pesa PIN to confirm.</div>
+      <div style="margin-top:18px;font-family:var(--font-mono);font-size:12px;color:var(--gold)">Processing KES ${booking.service?.price?.toLocaleString()}...</div>
+    </div>
+  `;
+
+  // Simulate Daraja callback after 3s
+  setTimeout(() => {
+    const txnId = 'MP' + Math.random().toString(36).substr(2,8).toUpperCase();
+    const bkId = 'BK' + Date.now().toString().slice(-6);
+    const newBk = {
+      id: bkId, userId: session?.id || '',
+      customer: name, service: booking.service.name,
+      serviceId: booking.service.id,
+      date: booking.date, time: booking.time,
+      amount: booking.service.price, phone,
+      email, txnId, status: 'confirmed',
+      payStatus: 'paid', created: Date.now()
+    };
+    addBooking(newBk);
+
+    // Render confirmation ticket
+    document.getElementById('confirmTicket').innerHTML = `
+      <div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:1px dashed rgba(200,169,110,.2)">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--gold);letter-spacing:.12em">BOOKING CONFIRMATION TICKET</div>
+      </div>
+      <div class="summ-row"><span class="summ-lbl">Booking ID</span><span class="summ-val" style="font-family:var(--font-mono);font-size:12px;color:var(--gold)">#${bkId}</span></div>
+      <div class="summ-row"><span class="summ-lbl">Customer</span><span class="summ-val">${name}</span></div>
+      <div class="summ-row"><span class="summ-lbl">Service</span><span class="summ-val">${booking.service.icon} ${booking.service.name}</span></div>
+      <div class="summ-row"><span class="summ-lbl">Date</span><span class="summ-val">${booking.date}</span></div>
+      <div class="summ-row"><span class="summ-lbl">Time</span><span class="summ-val">${booking.time}</span></div>
+      <div class="summ-row"><span class="summ-lbl">Phone</span><span class="summ-val">${phone}</span></div>
+      <div class="summ-row"><span class="summ-lbl">Amount Paid</span><span class="summ-val gold">KES ${booking.service.price.toLocaleString()}</span></div>
+      <div class="summ-row"><span class="summ-lbl">M-Pesa Ref</span><span class="summ-val" style="font-family:var(--font-mono);font-size:12px;color:var(--gold)">${txnId}</span></div>
+      <div class="summ-row"><span class="summ-lbl">Payment</span><span class="summ-val"><span class="badge badge-success">✅ PAID</span></span></div>
+    `;
+
+    goStep(3, 4);
+    showToast('Payment Successful!', `KES ${booking.service.price.toLocaleString()} received. Ref: ${txnId}`, '💚');
+  }, 3200);
+}
+
+// Init
+renderSvcList();
+renderCalendar();
+renderTimeSlots();
+</script>
+</body>
+</html>

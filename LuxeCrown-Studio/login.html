@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login · LuxeCrown Studio</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div id="toast-placeholder"></div>
+
+<div class="auth-wrap">
+  <!-- LEFT PANEL -->
+  <div class="auth-left">
+    <div class="auth-left-bg" style="background-image:url('https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=900&q=80')"></div>
+    <div class="auth-left-overlay"></div>
+    <div class="auth-left-content">
+      <a href="index.html" style="text-decoration:none">
+        <div class="auth-logo">LuxeCrown Studio</div>
+        <div class="auth-logo-sub">Salon & Barbershop · Nairobi 🇰🇪</div>
+      </a>
+      <div class="auth-quote" style="margin-top:44px">
+        <p>"Fresh cut, fresh start. Your style is your statement — and we make sure it speaks volumes."</p>
+        <cite>— LuxeCrown Studio Team</cite>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:32px">
+        <div style="background:rgba(200,169,110,.07);border:1px solid rgba(200,169,110,.15);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-family:var(--font-head);font-size:26px;font-weight:800;color:var(--gold)">2K+</div>
+          <div style="font-size:11px;color:var(--gray);margin-top:2px">Happy Clients</div>
+        </div>
+        <div style="background:rgba(200,169,110,.07);border:1px solid rgba(200,169,110,.15);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-family:var(--font-head);font-size:26px;font-weight:800;color:var(--gold)">4.9★</div>
+          <div style="font-size:11px;color:var(--gray);margin-top:2px">Average Rating</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: form injected by JS -->
+  <div class="auth-right" id="authRight"></div>
+</div>
+
+<script src="js/app.js"></script>
+<script>
+document.getElementById('toast-placeholder').outerHTML = TOAST_HTML;
+initCursor();
+
+// Redirect if already logged in
+if (isLoggedIn()) {
+  window.location.href = isAdmin() ? 'admin.html' : 'dashboard.html';
+}
+
+const params = new URLSearchParams(window.location.search);
+let mode = params.get('mode') || 'login';
+let redirect = params.get('redirect') || '';
+
+function showMode(m) {
+  mode = m;
+  // Update URL without reload
+  const url = new URL(window.location);
+  url.searchParams.set('mode', m);
+  window.history.replaceState({}, '', url);
+  render();
+}
+
+function render() {
+  const right = document.getElementById('authRight');
+  if (mode === 'login') {
+    right.innerHTML = `
+      <div class="auth-form-title">Welcome back 👋</div>
+      <div class="auth-form-sub">No account? <a onclick="showMode('register')">Create one free →</a></div>
+      <button class="google-btn" onclick="googleSignIn()">
+        <span style="font-size:18px">🌐</span> Continue with Google
+      </button>
+      <div class="divider"><div class="divider-line"></div><div class="divider-txt">or email</div><div class="divider-line"></div></div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="loginEmail" placeholder="you@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+        <a class="forgot-link" onclick="showMode('forgot')">Forgot password?</a>
+      </div>
+      <div id="loginErr" style="color:var(--red);font-size:13px;margin-top:4px;display:none"></div>
+      <button class="auth-btn" onclick="doLogin()">Sign In →</button>
+      
+    `;
+  } else if (mode === 'register') {
+    right.innerHTML = `
+      <div class="auth-form-title">Create Account ✨</div>
+      <div class="auth-form-sub">Already have one? <a onclick="showMode('login')">Sign in →</a></div>
+      <button class="google-btn" onclick="googleSignIn()">
+        <span style="font-size:18px">🌐</span> Continue with Google
+      </button>
+      <div class="divider"><div class="divider-line"></div><div class="divider-txt">or fill form</div><div class="divider-line"></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label class="form-label">First Name</label>
+          <input class="form-input" type="text" id="regFirst" placeholder="Brian">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Last Name</label>
+          <input class="form-input" type="text" id="regLast" placeholder="Mutua">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <input class="form-input" type="tel" id="regPhone" placeholder="0712 345 678">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" type="email" id="regEmail" placeholder="you@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" type="password" id="regPass" placeholder="Min 8 characters">
+      </div>
+      <div id="regErr" style="color:var(--red);font-size:13px;margin-top:4px;display:none"></div>
+      <button class="auth-btn" onclick="doRegister()">Create Account →</button>
+    `;
+  } else if (mode === 'forgot') {
+    right.innerHTML = `
+      <div class="auth-form-title">Reset Password 🔑</div>
+      <div class="auth-form-sub">Remember it? <a onclick="showMode('login')">Back to login →</a></div>
+      <div class="form-group" style="margin-top:16px">
+        <label class="form-label">Your Email Address</label>
+        <input class="form-input" type="email" id="forgotEmail" placeholder="you@email.com">
+      </div>
+      <button class="auth-btn" onclick="doForgot()">Send Reset Link →</button>
+    `;
+  }
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+function doLogin() {
+  const email = document.getElementById('loginEmail')?.value.trim();
+  const pass = document.getElementById('loginPass')?.value;
+  if (!email || !pass) return showErr('loginErr','Please fill in all fields.');
+  const users = getUsers();
+  const user = users.find(u => u.email === email && u.password === pass);
+  if (!user) return showErr('loginErr','Invalid email or password.');
+  if (user.blocked) return showErr('loginErr','Account has been blocked. Contact support.');
+  setSession(user);
+  showToast('Welcome back!', `Logged in as ${user.name} ✅`);
+  setTimeout(() => {
+    if (redirect) window.location.href = redirect;
+    else if (user.role === 'admin') window.location.href = 'admin.html';
+    else window.location.href = 'dashboard.html';
+  }, 800);
+}
+
+function doRegister() {
+  const first = document.getElementById('regFirst')?.value.trim();
+  const last = document.getElementById('regLast')?.value.trim();
+  const phone = document.getElementById('regPhone')?.value.trim();
+  const email = document.getElementById('regEmail')?.value.trim();
+  const pass = document.getElementById('regPass')?.value;
+  if (!first||!last||!phone||!email||!pass) return showErr('regErr','Please fill in all fields.');
+  if (pass.length < 8) return showErr('regErr','Password must be at least 8 characters.');
+  const users = getUsers();
+  if (users.find(u => u.email === email)) return showErr('regErr','Email already registered. Sign in instead.');
+  const newUser = { id:'u'+Date.now(), name:`${first} ${last}`, email, phone, password:pass, role:'user', joined: new Date().toISOString().split('T')[0] };
+  users.push(newUser);
+  saveUsers(users);
+  setSession(newUser);
+  showToast('Account created!','Welcome to LuxeCrown Studio 🎉');
+  setTimeout(() => { window.location.href = redirect || 'dashboard.html'; }, 900);
+}
+
+function doForgot() {
+  const email = document.getElementById('forgotEmail')?.value.trim();
+  if (!email) return showToast('Email required','Please enter your email.','⚠️');
+  showToast('Link Sent','Password reset link sent to ' + email + ' (simulated)','📧');
+  setTimeout(() => showMode('login'), 2000);
+}
+
+function googleSignIn() {
+  // Simulate Google OAuth — create/find a demo Google user
+  const gUser = { id:'g'+Date.now(), name:'Google User', email:'google@gmail.com', phone:'', password:'', role:'user', joined: new Date().toISOString().split('T')[0], via:'google' };
+  const users = getUsers();
+  const existing = users.find(u => u.email === gUser.email);
+  const user = existing || gUser;
+  if (!existing) { users.push(user); saveUsers(users); }
+  setSession(user);
+  showToast('Signed in with Google!','Welcome, ' + user.name + ' ✅');
+  setTimeout(() => { window.location.href = redirect || 'dashboard.html'; }, 900);
+}
+
+render();
+</script>
+</body>
+</html>

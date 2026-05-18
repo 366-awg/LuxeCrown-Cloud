@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact · LuxeCrown Studio</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div id="nav-placeholder"></div>
+<div id="toast-placeholder"></div>
+
+<!-- HERO -->
+<div class="hero-full" style="min-height:48vh;padding-top:0">
+  <div class="hero-bg-img" style="background-image:url('https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=1400&q=80')"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><div class="pulse-dot"></div> We're Open Today · 9AM – 4PM</div>
+    <h1 class="hero-title" style="font-size:clamp(40px,6vw,76px)">Come Say <em>Hello</em></h1>
+    <p class="hero-sub">Find us in Nairobi CBD. Book online or walk in — we're always ready.</p>
+  </div>
+</div>
+
+<!-- CONTACT INFO + FORM -->
+<section class="section">
+  <div class="section-label">📍 Get In Touch</div>
+  <h2 class="section-title">Contact <em>Us</em></h2>
+  <div class="contact-grid">
+    <!-- LEFT: Info -->
+    <div>
+      <div class="cinfo-item">
+        <div class="cinfo-icon">📍</div>
+        <div>
+          <div class="cinfo-label">Location</div>
+          <div class="cinfo-val">Tom Mboya Street, Nairobi CBD<br>2nd Floor, Urban Plaza</div>
+        </div>
+      </div>
+      <div class="cinfo-item">
+        <div class="cinfo-icon">📞</div>
+        <div>
+          <div class="cinfo-label">Call / WhatsApp</div>
+          <div class="cinfo-val"><a href="tel:+254700000000" style="color:var(--white)">+254 700 000 000</a></div>
+        </div>
+      </div>
+      <div class="cinfo-item">
+        <div class="cinfo-icon">📧</div>
+        <div>
+          <div class="cinfo-label">Email</div>
+          <div class="cinfo-val"><a href="mailto:hello@LuxeCrown Studio.co.ke" style="color:var(--white)">hello@LuxeCrown Studio.co.ke</a></div>
+        </div>
+      </div>
+      <div class="cinfo-item">
+        <div class="cinfo-icon">📱</div>
+        <div>
+          <div class="cinfo-label">Social Media</div>
+          <div class="cinfo-val">@LuxeCrown Studio_nbi on Instagram & TikTok</div>
+        </div>
+      </div>
+
+      <!-- Opening Hours -->
+      <div style="margin-top:8px">
+        <div class="section-label" style="margin-bottom:12px">🕘 Opening Hours</div>
+        <div class="hours-table">
+          <div class="hours-row"><span class="hday">Monday</span><span class="htime">9:00 AM – 4:00 PM</span></div>
+          <div class="hours-row"><span class="hday">Tuesday</span><span class="htime">9:00 AM – 4:00 PM</span></div>
+          <div class="hours-row"><span class="hday">Wednesday</span><span class="htime">9:00 AM – 4:00 PM</span></div>
+          <div class="hours-row"><span class="hday">Thursday</span><span class="htime">9:00 AM – 4:00 PM</span></div>
+          <div class="hours-row"><span class="hday">Friday</span><span class="htime">9:00 AM – 4:00 PM</span></div>
+          <div class="hours-row"><span class="hday">Saturday</span><span class="htime">9:00 AM – 3:00 PM</span></div>
+          <div class="hours-row"><span class="hday">Sunday</span><span class="hclosed">Closed</span></div>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="map-box" style="margin-top:24px">
+        <div style="font-size:44px">🗺️</div>
+        <div style="font-size:14px;color:var(--gray);text-align:center;line-height:1.7">Tom Mboya Street, Nairobi CBD<br>Urban Plaza, 2nd Floor</div>
+        <a href="https://maps.google.com/?q=Tom+Mboya+Street+Nairobi" target="_blank">
+          <button class="map-btn">Open in Google Maps →</button>
+        </a>
+      </div>
+    </div>
+
+    <!-- RIGHT: Form -->
+    <div>
+      <div class="contact-form-box">
+        <div style="font-family:var(--font-head);font-size:22px;font-weight:800;letter-spacing:-1px;color:var(--white);margin-bottom:4px">Send Us a Message</div>
+        <div style="font-size:13px;color:var(--gray);margin-bottom:24px">We reply within 2 hours during business hours.</div>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input class="form-input" type="text" id="cName" placeholder="Brian Mutua">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input class="form-input" type="email" id="cEmail" placeholder="you@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Phone (optional)</label>
+          <input class="form-input" type="tel" id="cPhone" placeholder="0712 345 678">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Subject</label>
+          <select class="form-select" id="cSubject">
+            <option>Booking Inquiry</option>
+            <option>Service Information</option>
+            <option>Complaint / Feedback</option>
+            <option>Partnership</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message</label>
+          <textarea class="form-input" id="cMessage" rows="5" placeholder="Type your message here..."></textarea>
+        </div>
+        <button class="contact-submit" onclick="sendMessage()">Send Message →</button>
+      </div>
+
+      <!-- Quick actions -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
+        <a href="https://wa.me/254700000000" target="_blank">
+          <div style="background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.2);border-radius:var(--radius);padding:18px;text-align:center;cursor:pointer;transition:background .2s" onmouseover="this.style.background='rgba(37,211,102,.14)'" onmouseout="this.style.background='rgba(37,211,102,.08)'">
+            <div style="font-size:28px;margin-bottom:6px">💬</div>
+            <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--white)">WhatsApp Us</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px">Quick response</div>
+          </div>
+        </a>
+        <a href="booking.html">
+          <div style="background:rgba(200,169,110,.07);border:1px solid rgba(200,169,110,.15);border-radius:var(--radius);padding:18px;text-align:center;cursor:pointer;transition:background .2s" onmouseover="this.style.background='rgba(200,169,110,.13)'" onmouseout="this.style.background='rgba(200,169,110,.07)'">
+            <div style="font-size:28px;margin-bottom:6px">📅</div>
+            <div style="font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--white)">Book Online</div>
+            <div style="font-size:12px;color:var(--gray);margin-top:3px">2 minutes to book</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- IMAGE GALLERY STRIP -->
+<section class="section section-alt" style="padding:70px 60px">
+  <div class="section-label">📸 Our Space</div>
+  <h2 class="section-title">The <em>LuxeCrown Studio</em> Experience</h2>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:36px">
+    <img src="https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=500&q=80" style="width:100%;height:220px;object-fit:cover;border-radius:14px;cursor:pointer" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=500&q=80" style="width:100%;height:220px;object-fit:cover;border-radius:14px;cursor:pointer" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1621605815971-fbc98d665033?w=500&q=80" style="width:100%;height:220px;object-fit:cover;border-radius:14px;cursor:pointer" onclick="openLightbox(this.src)">
+    <img src="https://images.unsplash.com/photo-1562322140-8baeececf3df?w=500&q=80" style="width:100%;height:220px;object-fit:cover;border-radius:14px;cursor:pointer" onclick="openLightbox(this.src)">
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<div id="lightbox-placeholder"></div>
+<script src="js/app.js"></script>
+<script>
+document.getElementById('nav-placeholder').outerHTML = NAV_HTML;
+document.getElementById('footer-placeholder').outerHTML = FOOTER_HTML;
+document.getElementById('lightbox-placeholder').outerHTML = LIGHTBOX_HTML;
+document.getElementById('toast-placeholder').outerHTML = TOAST_HTML;
+renderNav('contact');
+initCursor();
+
+// Pre-fill if logged in
+const s = getSession();
+if (s) {
+  document.getElementById('cName').value = s.name || '';
+  document.getElementById('cEmail').value = s.email || '';
+}
+
+function sendMessage() {
+  const name = document.getElementById('cName').value.trim();
+  const email = document.getElementById('cEmail').value.trim();
+  const msg = document.getElementById('cMessage').value.trim();
+  if (!name||!email||!msg) return showToast('Missing Fields','Please fill in name, email and message.','⚠️');
+  showToast('Message Sent! 📧','We\'ll get back to you within 2 hours.');
+  document.getElementById('cName').value = '';
+  document.getElementById('cEmail').value = '';
+  document.getElementById('cPhone').value = '';
+  document.getElementById('cMessage').value = '';
+}
+</script>
+</body>
+</html>

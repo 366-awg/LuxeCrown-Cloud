@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel · LuxeCrown Studio</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div id="nav-placeholder"></div>
+<div id="toast-placeholder"></div>
+
+<!-- Service Modal -->
+<div class="modal-bg" id="svcModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-title" id="modalTitle">Add Service</div>
+    <div class="modal-sub">Fill in the service details below</div>
+    <input type="hidden" id="editId">
+    <div class="form-group">
+      <label class="form-label">Service Name</label>
+      <input class="form-input" type="text" id="svcName" placeholder="e.g. Classic Haircut">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-select" id="svcCat"><option>Barber</option><option>Salon</option></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Icon (emoji)</label>
+        <input class="form-input" type="text" id="svcIcon" placeholder="✂️" maxlength="4">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-input" id="svcDesc" rows="3" placeholder="Describe the service..."></textarea>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group">
+        <label class="form-label">Price (KES)</label>
+        <input class="form-input" type="number" id="svcPrice" placeholder="500">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Duration</label>
+        <input class="form-input" type="text" id="svcDuration" placeholder="45 min">
+      </div>
+    </div>
+    <!-- IMAGE UPLOAD -->
+    <div class="form-group">
+      <label class="form-label">Service Images (JPG/PNG — up to 5)</label>
+      <div id="imgPreviewGrid" class="img-preview-grid"></div>
+      <label style="cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin-top:10px;background:rgba(200,169,110,.08);border:1px dashed rgba(200,169,110,.3);border-radius:10px;padding:10px 18px;font-size:13px;color:var(--gold);transition:background .2s" onmouseover="this.style.background='rgba(200,169,110,.14)'" onmouseout="this.style.background='rgba(200,169,110,.08)'">
+        📷 Add Image(s)
+        <input type="file" id="imgUpload" accept="image/*" multiple style="display:none" onchange="handleImgUpload(event)">
+      </label>
+      <div style="font-size:11px;color:var(--gray);margin-top:6px">Or paste image URLs below (one per line):</div>
+      <textarea class="form-input" id="svcImgUrls" rows="3" placeholder="https://images.unsplash.com/...&#10;https://..." style="margin-top:8px;font-size:12px"></textarea>
+    </div>
+    <button class="btn btn-gold" style="width:100%;padding:14px;border-radius:var(--radius);font-size:15px" onclick="saveService()">Save Service</button>
+  </div>
+</div>
+
+<!-- Booking Detail Modal -->
+<div class="modal-bg" id="bkModal">
+  <div class="modal" style="position:relative">
+    <button class="modal-close" onclick="document.getElementById('bkModal').classList.remove('open')">✕</button>
+    <div class="modal-title">Booking Details</div>
+    <div id="bkDetail" style="margin-top:16px"></div>
+  </div>
+</div>
+
+<div class="admin-layout">
+  <!-- SIDEBAR -->
+  <div class="admin-sidebar">
+    <div style="padding:20px 20px 28px;border-bottom:1px solid rgba(200,169,110,.08);margin-bottom:10px">
+      <div style="font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--gold)">LuxeCrown Studio</div>
+      <div style="font-size:11px;color:var(--gray);font-family:var(--font-mono)">Admin Panel</div>
+    </div>
+    <div class="sidebar-section-label">Main</div>
+    <div class="sidebar-link active" onclick="showSection('dashboard',this)" id="sl-dashboard"><span class="sidebar-icon">📊</span> Dashboard</div>
+    <div class="sidebar-link" onclick="showSection('bookings',this)" id="sl-bookings"><span class="sidebar-icon">📅</span> Bookings</div>
+    <div class="sidebar-link" onclick="showSection('services',this)" id="sl-services"><span class="sidebar-icon">✂️</span> Services</div>
+    <div class="sidebar-section-label" style="margin-top:12px">Management</div>
+    <div class="sidebar-link" onclick="showSection('customers',this)" id="sl-customers"><span class="sidebar-icon">👥</span> Customers</div>
+    <div class="sidebar-link" onclick="showSection('payments',this)" id="sl-payments"><span class="sidebar-icon">💳</span> Payments</div>
+    <div class="sidebar-section-label" style="margin-top:12px">Site</div>
+    <div class="sidebar-link" onclick="window.open('index.html','_blank')"><span class="sidebar-icon">🌐</span> View Website</div>
+    <div class="sidebar-link" onclick="logout()" style="color:var(--red)"><span class="sidebar-icon">🚪</span> Logout</div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="admin-content" id="adminContent"></div>
+</div>
+
+<div id="toast-placeholder2"></div>
+<script src="js/app.js"></script>
+<script>
+document.getElementById('nav-placeholder').outerHTML = NAV_HTML;
+document.getElementById('toast-placeholder').outerHTML = TOAST_HTML;
+renderNav('admin');
+initCursor();
+
+// Admin gate — HARD BLOCK
+if (!isAdmin()) {
+  document.body.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:var(--black);gap:16px">
+    <div style="font-size:60px">🚫</div>
+    <div style="font-family:var(--font-head);font-size:28px;font-weight:800;color:var(--white)">Access Denied</div>
+    <div style="font-size:14px;color:var(--gray)">You need admin privileges to view this page.</div>
+    <a href="index.html"><button style="background:var(--gold);color:var(--black);border:none;padding:12px 28px;border-radius:40px;font-family:var(--font-head);font-weight:700;cursor:pointer;margin-top:8px">Go Home</button></a>
+  </div>`;
+  throw new Error('Not admin');
+}
+
+let editingImages = []; // base64 or URLs for current edit session
+
+// ---- SECTION ROUTER ----
+function showSection(sec, el) {
+  document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+  el.classList.add('active');
+  const fns = { dashboard: renderDashboard, bookings: renderBookings, services: renderServices, customers: renderCustomers, payments: renderPayments };
+  fns[sec]?.();
+}
+
+// ---- DASHBOARD ----
+function renderDashboard() {
+  const bks = getBookings();
+  const users = getUsers().filter(u => u.role !== 'admin');
+  const revenue = bks.filter(b => b.payStatus === 'paid').reduce((s,b) => s+b.amount, 0);
+  const revData = [42000,38000,55000,61000,49000,72000,68000];
+  const months = ['Nov','Dec','Jan','Feb','Mar','Apr','May'];
+  const maxR = Math.max(...revData);
+
+  document.getElementById('adminContent').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px">
+      <div>
+        <div style="font-family:var(--font-head);font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--white)">Dashboard</div>
+        <div style="font-size:13px;color:var(--gray);margin-top:2px">${new Date().toLocaleDateString('en-KE',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+      </div>
+      <a href="booking.html"><button class="btn btn-gold" style="padding:10px 22px;font-size:13px">+ New Booking</button></a>
+    </div>
+    <div class="dash-grid">
+      <div class="dash-card"><div class="dash-card-label">Total Bookings</div><div class="dash-card-val">${bks.length}</div><div class="dash-card-change"><span class="up">↑ 18%</span> vs last month</div></div>
+      <div class="dash-card"><div class="dash-card-label">Revenue (All)</div><div class="dash-card-val gold">KES ${(revenue/1000).toFixed(1)}K</div><div class="dash-card-change"><span class="up">↑ 12%</span> growth</div></div>
+      <div class="dash-card"><div class="dash-card-label">Customers</div><div class="dash-card-val">${users.length}</div><div class="dash-card-change"><span class="up">↑ 8%</span> new</div></div>
+      <div class="dash-card"><div class="dash-card-label">Avg Rating</div><div class="dash-card-val gold">4.9 ⭐</div><div class="dash-card-change"><span class="up">↑ 0.1</span> this month</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-head"><div class="panel-title">Revenue — Last 7 Months</div></div>
+      <div class="panel-body">
+        <div class="rev-bars">
+          ${revData.map((v,i) => `<div class="rev-bar-wrap">
+            <div class="rev-val">KES ${(v/1000).toFixed(0)}K</div>
+            <div class="rev-bar" style="height:${(v/maxR)*100}px"></div>
+            <div class="rev-lbl">${months[i]}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Recent Bookings</div><button class="panel-btn" onclick="showSection('bookings',document.getElementById('sl-bookings'))">View All</button></div>
+        <table class="tbl">
+          <thead><tr><th>Customer</th><th>Service</th><th>Status</th></tr></thead>
+          <tbody>${bks.slice(-4).reverse().map(b=>`<tr><td>${b.customer}</td><td style="color:var(--gray-light)">${b.service}</td><td><span class="badge badge-${b.status==='confirmed'?'success':'pending'}">${b.status}</span></td></tr>`).join('')}</tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title">Popular Services</div></div>
+        <div class="panel-body" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          ${[{n:'Classic Haircut',c:89,i:'✂️'},{n:'Braiding',c:67,i:'💆'},{n:'Wig Install',c:54,i:'👑'},{n:'Beard Trim',c:48,i:'🪒'}].map(s=>`
+          <div style="background:var(--dark3);border-radius:10px;padding:14px;text-align:center">
+            <div style="font-size:24px;margin-bottom:6px">${s.i}</div>
+            <div style="font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--gold)">${s.c}</div>
+            <div style="font-size:11px;color:var(--gray);margin-top:2px">${s.n}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ---- BOOKINGS ----
+function renderBookings(filter='all') {
+  let bks = getBookings();
+  const filtered = filter === 'all' ? bks : bks.filter(b => b.status === filter);
+  document.getElementById('adminContent').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+      <div><div style="font-family:var(--font-head);font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--white)">Bookings</div><div style="font-size:13px;color:var(--gray)">${bks.length} total appointments</div></div>
+    </div>
+    <div class="chips">
+      <div class="chip ${filter==='all'?'active':''}" onclick="renderBookings('all')">All (${bks.length})</div>
+      <div class="chip ${filter==='confirmed'?'active':''}" onclick="renderBookings('confirmed')">Confirmed</div>
+      <div class="chip ${filter==='pending'?'active':''}" onclick="renderBookings('pending')">Pending</div>
+      <div class="chip ${filter==='cancelled'?'active':''}" onclick="renderBookings('cancelled')">Cancelled</div>
+    </div>
+    <div class="panel">
+      <table class="tbl">
+        <thead><tr><th>ID</th><th>Customer</th><th>Service</th><th>Date</th><th>Time</th><th>Amount</th><th>Pay</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          ${filtered.sort((a,b)=>b.created-a.created).map(b=>`
+          <tr>
+            <td style="font-family:var(--font-mono);font-size:11px;color:var(--gold)">#${b.id}</td>
+            <td>${b.customer}</td>
+            <td style="color:var(--gray-light);font-size:13px">${b.service}</td>
+            <td style="font-size:12px;color:var(--gray-light)">${b.date}</td>
+            <td style="font-family:var(--font-mono);font-size:11px">${b.time}</td>
+            <td style="color:var(--gold);font-family:var(--font-head);font-weight:700">KES ${b.amount.toLocaleString()}</td>
+            <td><span class="badge badge-${b.payStatus==='paid'?'success':'pending'}">${b.payStatus||'pending'}</span></td>
+            <td><span class="badge badge-${b.status==='confirmed'?'success':b.status==='pending'?'pending':'danger'}">${b.status}</span></td>
+            <td>
+              <div style="display:flex;gap:5px">
+                <button class="panel-btn" style="padding:5px 10px;font-size:11px" onclick="confirmBk('${b.id}')">✓</button>
+                <button class="panel-btn red" style="padding:5px 10px;font-size:11px" onclick="cancelBk('${b.id}')">✗</button>
+                <button class="panel-btn" style="padding:5px 10px;font-size:11px" onclick="viewBk('${b.id}')">👁</button>
+              </div>
+            </td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function confirmBk(id) {
+  const bks = getBookings();
+  const idx = bks.findIndex(b => b.id === id);
+  if (idx === -1) return;
+  bks[idx].status = 'confirmed';
+  saveBookings(bks);
+  showToast('Booking Confirmed',`#${id} marked as confirmed ✅`);
+  renderBookings();
+}
+function cancelBk(id) {
+  const bks = getBookings();
+  const idx = bks.findIndex(b => b.id === id);
+  if (idx === -1) return;
+  bks[idx].status = 'cancelled';
+  saveBookings(bks);
+  showToast('Booking Cancelled',`#${id} cancelled ❌`,'❌');
+  renderBookings();
+}
+function viewBk(id) {
+  const b = getBookings().find(bk => bk.id === id);
+  if (!b) return;
+  document.getElementById('bkDetail').innerHTML = `
+    <div class="summ-row"><span class="summ-lbl">Booking ID</span><span class="summ-val" style="font-family:var(--font-mono);color:var(--gold)">#${b.id}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Customer</span><span class="summ-val">${b.customer}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Email</span><span class="summ-val">${b.email||'—'}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Phone</span><span class="summ-val">${b.phone}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Service</span><span class="summ-val">${b.service}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Date</span><span class="summ-val">${b.date}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Time</span><span class="summ-val">${b.time}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Amount</span><span class="summ-val gold">KES ${b.amount.toLocaleString()}</span></div>
+    <div class="summ-row"><span class="summ-lbl">M-Pesa Ref</span><span class="summ-val" style="font-family:var(--font-mono);color:var(--gold)">${b.txnId}</span></div>
+    <div class="summ-row"><span class="summ-lbl">Payment</span><span class="summ-val"><span class="badge badge-${b.payStatus==='paid'?'success':'pending'}">${b.payStatus}</span></span></div>
+    <div class="summ-row"><span class="summ-lbl">Status</span><span class="summ-val"><span class="badge badge-${b.status==='confirmed'?'success':'pending'}">${b.status}</span></span></div>
+  `;
+  document.getElementById('bkModal').classList.add('open');
+}
+
+// ---- SERVICES ----
+function renderServices() {
+  const svcs = getServices();
+  document.getElementById('adminContent').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+      <div><div style="font-family:var(--font-head);font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--white)">Services</div><div style="font-size:13px;color:var(--gray)">${svcs.length} services in catalogue</div></div>
+      <button class="btn btn-gold" onclick="openAddModal()" style="padding:10px 22px;font-size:13px">+ Add Service</button>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:18px">
+      ${svcs.map(s => `
+      <div style="background:var(--dark2);border:1px solid rgba(200,169,110,.1);border-radius:var(--radius-lg);overflow:hidden">
+        <div style="position:relative;height:180px;overflow:hidden">
+          <img src="${s.images?.[0]||''}" alt="${s.name}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.background='var(--dark3)';this.removeAttribute('src')">
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(10,10,10,.8),transparent)"></div>
+          <div style="position:absolute;bottom:12px;left:12px;font-size:22px">${s.icon}</div>
+          <div style="position:absolute;top:10px;right:10px;display:flex;gap:6px">
+            ${(s.images||[]).slice(1,3).map(img=>`<img src="${img}" style="width:36px;height:36px;border-radius:6px;object-fit:cover;border:1.5px solid rgba(200,169,110,.3);cursor:pointer" onclick="openLightbox('${img}')">`).join('')}
+            ${(s.images||[]).length > 3 ? `<div style="width:36px;height:36px;border-radius:6px;background:rgba(0,0,0,.6);border:1.5px solid rgba(200,169,110,.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--gold);font-family:var(--font-mono)">+${s.images.length-3}</div>` : ''}
+          </div>
+          <span class="badge badge-info" style="position:absolute;top:10px;left:10px">${s.category}</span>
+        </div>
+        <div style="padding:18px">
+          <div style="font-family:var(--font-head);font-size:17px;font-weight:700;color:var(--white);margin-bottom:4px">${s.name}</div>
+          <div style="font-size:12px;color:var(--gray);margin-bottom:12px;line-height:1.5">${s.desc}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <div style="font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--gold)">KES ${s.price.toLocaleString()}</div>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--gray);background:var(--dark3);padding:4px 10px;border-radius:20px">⏱ ${s.duration}</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="panel-btn" style="flex:1" onclick="openEditModal('${s.id}')">✏️ Edit</button>
+            <button class="panel-btn red" onclick="deleteService('${s.id}')">🗑 Delete</button>
+          </div>
+        </div>
+      </div>`).join('')}
+    </div>
+  `;
+}
+
+// ---- SERVICE MODAL ----
+function openAddModal() {
+  editingImages = [];
+  document.getElementById('editId').value = '';
+  document.getElementById('svcName').value = '';
+  document.getElementById('svcCat').value = 'Barber';
+  document.getElementById('svcIcon').value = '';
+  document.getElementById('svcDesc').value = '';
+  document.getElementById('svcPrice').value = '';
+  document.getElementById('svcDuration').value = '';
+  document.getElementById('svcImgUrls').value = '';
+  document.getElementById('modalTitle').textContent = 'Add New Service';
+  renderImgPreviews();
+  document.getElementById('svcModal').classList.add('open');
+}
+function openEditModal(id) {
+  const s = getServices().find(x => x.id === id);
+  if (!s) return;
+  editingImages = [...(s.images||[])];
+  document.getElementById('editId').value = id;
+  document.getElementById('svcName').value = s.name;
+  document.getElementById('svcCat').value = s.category;
+  document.getElementById('svcIcon').value = s.icon;
+  document.getElementById('svcDesc').value = s.desc;
+  document.getElementById('svcPrice').value = s.price;
+  document.getElementById('svcDuration').value = s.duration;
+  document.getElementById('svcImgUrls').value = '';
+  document.getElementById('modalTitle').textContent = 'Edit Service';
+  renderImgPreviews();
+  document.getElementById('svcModal').classList.add('open');
+}
+function closeModal() { document.getElementById('svcModal').classList.remove('open'); }
+
+function handleImgUpload(evt) {
+  const files = Array.from(evt.target.files);
+  files.forEach(file => {
+    if (editingImages.length >= 5) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      editingImages.push(e.target.result);
+      renderImgPreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+  evt.target.value = '';
+}
+
+function renderImgPreviews() {
+  document.getElementById('imgPreviewGrid').innerHTML = editingImages.map((src,i) => `
+    <div class="img-preview">
+      <img src="${src}" onerror="this.src=''">
+      <button class="del-img" onclick="removeImg(${i})">×</button>
+    </div>
+  `).join('');
+}
+function removeImg(i) {
+  editingImages.splice(i,1);
+  renderImgPreviews();
+}
+
+function saveService() {
+  const id = document.getElementById('editId').value;
+  const name = document.getElementById('svcName').value.trim();
+  const cat = document.getElementById('svcCat').value;
+  const icon = document.getElementById('svcIcon').value.trim() || '✂️';
+  const desc = document.getElementById('svcDesc').value.trim();
+  const price = parseInt(document.getElementById('svcPrice').value);
+  const duration = document.getElementById('svcDuration').value.trim();
+  // Merge URL inputs
+  const urlText = document.getElementById('svcImgUrls').value.trim();
+  const urlImgs = urlText ? urlText.split('\n').map(u=>u.trim()).filter(Boolean) : [];
+  const allImgs = [...editingImages, ...urlImgs].slice(0,5);
+
+  if (!name||!desc||!price||!duration) return showToast('Missing Fields','Please fill in all required fields.','⚠️');
+  const svcs = getServices();
+  if (id) {
+    const idx = svcs.findIndex(s => s.id === id);
+    if (idx !== -1) svcs[idx] = { ...svcs[idx], name, category:cat, icon, desc, price, duration, images:allImgs };
+    showToast('Service Updated',`${name} has been updated ✅`);
+  } else {
+    svcs.push({ id:'s'+Date.now(), name, category:cat, icon, desc, price, duration, images:allImgs });
+    showToast('Service Added',`${name} added to catalogue ✅`);
+  }
+  saveServices(svcs);
+  closeModal();
+  renderServices();
+}
+
+function deleteService(id) {
+  if (!confirm('Delete this service? This cannot be undone.')) return;
+  const svcs = getServices().filter(s => s.id !== id);
+  saveServices(svcs);
+  showToast('Deleted','Service removed from catalogue 🗑️','🗑️');
+  renderServices();
+}
+
+// ---- CUSTOMERS ----
+function renderCustomers() {
+  const users = getUsers().filter(u => u.role !== 'admin');
+  const bks = getBookings();
+  document.getElementById('adminContent').innerHTML = `
+    <div style="margin-bottom:24px">
+      <div style="font-family:var(--font-head);font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--white)">Customers</div>
+      <div style="font-size:13px;color:var(--gray)">${users.length} registered users</div>
+    </div>
+    <div class="panel">
+      <table class="tbl">
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th><th>Bookings</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          ${users.map(u => {
+            const ubks = bks.filter(b => b.userId === u.id).length;
+            return `<tr>
+              <td>${u.name}</td>
+              <td style="color:var(--gray-light)">${u.email}</td>
+              <td style="font-family:var(--font-mono);font-size:11px">${u.phone||'—'}</td>
+              <td style="font-size:12px;color:var(--gray)">${u.joined||'—'}</td>
+              <td style="color:var(--gold);font-weight:700">${ubks}</td>
+              <td><span class="badge badge-${u.blocked?'danger':'success'}">${u.blocked?'blocked':'active'}</span></td>
+              <td>
+                <div style="display:flex;gap:5px">
+                  <button class="panel-btn red" onclick="toggleBlock('${u.id}')">${u.blocked?'Unblock':'Block'}</button>
+                  <button class="panel-btn red" onclick="deleteUser('${u.id}')">Delete</button>
+                </div>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function toggleBlock(id) {
+  const users = getUsers();
+  const idx = users.findIndex(u => u.id === id);
+  if (idx === -1) return;
+  users[idx].blocked = !users[idx].blocked;
+  saveUsers(users);
+  showToast(users[idx].blocked?'User Blocked':'User Unblocked', users[idx].name, users[idx].blocked?'🚫':'✅');
+  renderCustomers();
+}
+function deleteUser(id) {
+  if (!confirm('Permanently delete this user?')) return;
+  saveUsers(getUsers().filter(u => u.id !== id));
+  showToast('User Deleted','User removed ✅');
+  renderCustomers();
+}
+
+// ---- PAYMENTS ----
+function renderPayments() {
+  const bks = getBookings().filter(b => b.txnId);
+  const total = bks.filter(b=>b.payStatus==='paid').reduce((s,b)=>s+b.amount,0);
+  document.getElementById('adminContent').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+      <div><div style="font-family:var(--font-head);font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--white)">M-Pesa Transactions</div><div style="font-size:13px;color:var(--gray)">Safaricom Daraja records</div></div>
+      <div style="text-align:right">
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--gray);margin-bottom:3px">TOTAL COLLECTED</div>
+        <div style="font-family:var(--font-head);font-size:28px;font-weight:800;color:var(--gold)">KES ${total.toLocaleString()}</div>
+      </div>
+    </div>
+    <div class="panel">
+      <table class="tbl">
+        <thead><tr><th>M-Pesa Ref</th><th>Customer</th><th>Service</th><th>Phone</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+          ${bks.sort((a,b)=>b.created-a.created).map(b=>`<tr>
+            <td style="font-family:var(--font-mono);font-size:11px;color:var(--gold)">${b.txnId}</td>
+            <td>${b.customer}</td>
+            <td style="color:var(--gray-light);font-size:13px">${b.service}</td>
+            <td style="font-family:var(--font-mono);font-size:11px">${b.phone}</td>
+            <td style="color:var(--gold);font-family:var(--font-head);font-weight:700">KES ${b.amount.toLocaleString()}</td>
+            <td style="font-size:12px;color:var(--gray)">${b.date}</td>
+            <td><span class="badge badge-${b.payStatus==='paid'?'success':'pending'}">${b.payStatus||'pending'}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+// Init
+renderDashboard();
+
+// Lightbox for admin
+document.body.insertAdjacentHTML('beforeend', LIGHTBOX_HTML);
+</script>
+</body>
+</html>

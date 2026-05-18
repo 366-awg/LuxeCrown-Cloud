@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Services · LuxeCrown Studio</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div id="nav-placeholder"></div>
+
+<!-- HERO -->
+<div class="hero-full" style="min-height:55vh;padding-top:0">
+  <div class="hero-bg-img" style="background-image:url('https://images.unsplash.com/photo-1562322140-8baeececf3df?w=1600&q=80')"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><div class="pulse-dot"></div> 8 Premium Services Available</div>
+    <h1 class="hero-title" style="font-size:clamp(42px,6vw,80px)">What We <em>Offer</em></h1>
+    <p class="hero-sub">From precision fades to flawless braids — every service crafted with skill and care.</p>
+  </div>
+</div>
+
+<!-- SERVICES SECTION -->
+<section class="section">
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:10px">
+    <div>
+      <div class="section-label">✂ Full Menu</div>
+      <h2 class="section-title">All <em>Services</em></h2>
+    </div>
+    <a href="booking.html"><button class="btn btn-gold" style="padding:13px 28px">Book a Service →</button></a>
+  </div>
+
+  <!-- Filter chips -->
+  <div class="chips" id="filterChips">
+    <div class="chip active" onclick="filterSvcs('All',this)">All Services</div>
+    <div class="chip" onclick="filterSvcs('Barber',this)">✂️ Barber</div>
+    <div class="chip" onclick="filterSvcs('Salon',this)">💆 Salon</div>
+  </div>
+
+  <div class="svc-grid" id="servicesGrid"></div>
+</section>
+
+<!-- IMAGE BG DIVIDER -->
+<section class="section img-bg-section section-alt" style="padding:80px 60px">
+  <div class="bg-layer" style="background-image:url('https://images.unsplash.com/photo-1604654894610-df63bc536371?w=1400&q=80')"></div>
+  <div class="bg-overlay"></div>
+  <div style="text-align:center;max-width:600px;margin:0 auto">
+    <div class="section-label" style="display:block;text-align:center">💳 Transparent Pricing</div>
+    <h2 class="section-title">No Hidden <em>Fees.</em><br>Ever.</h2>
+    <p style="font-size:15px;color:var(--gray);margin:16px 0 32px;line-height:1.75">What you see is what you pay. All prices include service, materials and finishing. Pay easily with M-Pesa, cash or card.</p>
+    <a href="booking.html"><button class="btn-hero btn-hero-primary">Book & Pay Online →</button></a>
+  </div>
+</section>
+
+<!-- PRICING PACKAGES -->
+<section class="section">
+  <div class="section-label">💳 Packages</div>
+  <h2 class="section-title">Pick Your <em>Package</em></h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:44px">
+    <div class="card" style="padding:36px">
+      <div style="font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Essential</div>
+      <div style="font-family:var(--font-head);font-size:48px;font-weight:800;color:var(--white);line-height:1">KES 500</div>
+      <div style="font-size:13px;color:var(--gray);margin:8px 0 22px">Per session · basic services</div>
+      <ul style="list-style:none">
+        <li style="padding:10px 0;border-bottom:1px solid rgba(200,169,110,.08);font-size:14px;color:var(--gray-light);display:flex;gap:10px;align-items:center"><span style="color:var(--gold)">✓</span> Regular Haircut</li>
+        <li style="padding:10px 0;border-bottom:1px solid rgba(200,169,110,.08);font-size:14px;color:var(--gray-light);display:flex;gap:10px;align-items:center"><span style="color:var(--gold)">✓</span> Beard Trim</li>
+        <li style="padding:10px 0;font-size:14px;color:var(--gray-light);display:flex;gap:10px;align-items:center"><span style="color:var(--gold)">✓</span> Basic Hair Wash</li>
+      </ul>
+      <a href="booking.html"><button class="btn btn-outline-gold" style="width:100%;margin-top:24px;padding:14px;border-radius:40px;font-size:15px;font-weight:700">Book Now</button></a>
+    </div>
+    <div style="background:var(--gold);border-radius:var(--radius-lg);padding:36px;position:relative">
+      <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--black);color:var(--gold);font-family:var(--font-mono);font-size:10px;letter-spacing:.1em;padding:6px 16px;border-radius:20px;white-space:nowrap;text-transform:uppercase">⚡ Most Popular</div>
+      <div style="font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--black);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">Premium</div>
+      <div style="font-family:var(--font-head);font-size:48px;font-weight:800;color:var(--black);line-height:1">KES 1,500</div>
+      <div style="font-size:13px;color:rgba(0,0,0,.6);margin:8px 0 22px">Full experience package</div>
+      <ul style="list-style:none">
+        <li style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,.12);font-size:14px;color:var(--black);display:flex;gap:10px;align-items:center"><span>✓</span> Premium Cut + Style</li>
+        <li style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,.12);font-size:14px;color:var(--black);display:flex;gap:10px;align-items:center"><span>✓</span> Beard Shape & Trim</li>
+        <li style="padding:10px 0;border-bottom:1px solid rgba(0,0,0,.12);font-size:14px;color:var(--black);display:flex;gap:10px;align-items:center"><span>✓</span> Hair Wash + Treatment</li>
+        <li style="padding:10px 0;font-size:14px;color:var(--black);display:flex;gap:10px;align-items:center"><span>✓</span> Priority Booking</li>
+      </ul>
+      <a href="booking.html"><button style="width:100%;margin-top:24px;background:var(--black);color:var(--gold);border:none;padding:14px;border-radius:40px;font-family:var(--font-head);font-weight:700;font-size:15px;cursor:pointer">Book Premium</button></a>
+    </div>
+    <div class="card" style="padding:36px">
+      <div style="font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.05em;text-transform:uppercase;margin-bottom:10px">VIP</div>
+      <div style="font-family:var(--font-head);font-size:48px;font-weight:800;color:var(--white);line-height:1">KES 3,500</div>
+      <div style="font-size:13px;color:var(--gray);margin:8px 0 22px">Full salon + barber combo</div>
+      <ul style="list-style:none">
+        <li style="padding:10px 0;border-bottom:1px solid rgba(200,169,110,.08);font-size:14px;color:var(--gray-light);display:flex;gap:10px;align-items:center"><span style="color:var(--gold)">✓</span> All Premium Services</li>
+        <li style="padding:10px 0;border-bottom:1px solid rgba(200,169,110,.08);font-size:14px;color:var(--gray-light);display:flex;gap:10px;align-items:center"><span style="color:var(--gold)">✓</span> Hair Dye / Colour</li>
+        <li style="padding:10px 0;border-bottom:1px solid rgba(200,169,110,.08);font-size:14px;color:var(--gray-light);display:flex;gap:10px;align-items:center"><span style="color:var(--gold)">✓</span> Nail Services</li>
+        <li style="padding:10px 0;font-size:14px;color:var(--gray-light);display:flex;gap:10px;align-items:center"><span style="color:var(--gold)">✓</span> Wig Installation</li>
+      </ul>
+      <a href="booking.html"><button class="btn btn-outline-gold" style="width:100%;margin-top:24px;padding:14px;border-radius:40px;font-size:15px;font-weight:700">Book VIP</button></a>
+    </div>
+  </div>
+</section>
+
+<div id="footer-placeholder"></div>
+<div id="lightbox-placeholder"></div>
+<div id="toast-placeholder"></div>
+<script src="js/app.js"></script>
+<script>
+document.getElementById('nav-placeholder').outerHTML = NAV_HTML;
+document.getElementById('footer-placeholder').outerHTML = FOOTER_HTML;
+document.getElementById('lightbox-placeholder').outerHTML = LIGHTBOX_HTML;
+document.getElementById('toast-placeholder').outerHTML = TOAST_HTML;
+renderNav('services');
+initCursor();
+
+let allSvcs = getServices();
+let currentFilter = 'All';
+
+function filterSvcs(cat, el) {
+  currentFilter = cat;
+  document.querySelectorAll('#filterChips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderSvcs();
+}
+
+function renderSvcs() {
+  const filtered = currentFilter === 'All' ? allSvcs : allSvcs.filter(s => s.category === currentFilter);
+  document.getElementById('servicesGrid').innerHTML = filtered.map(s => `
+    <div class="svc-card">
+      <div style="position:relative;overflow:hidden;height:210px;cursor:pointer" onclick="openLightbox('${s.images[0]||''}')">
+        <img class="svc-card-img" src="${s.images[0]||''}" alt="${s.name}" style="height:210px;transition:transform .4s" onmouseover="this.style.transform='scale(1.06)'" onmouseout="this.style.transform='scale(1)'">
+        ${s.images.length > 1 ? `<div style="position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.65);color:var(--gold);font-family:var(--font-mono);font-size:10px;padding:4px 10px;border-radius:20px">+${s.images.length-1} more</div>` : ''}
+      </div>
+      <div class="svc-card-body">
+        <div class="svc-card-cat">${s.category}</div>
+        <div class="svc-card-name">${s.icon} ${s.name}</div>
+        <div class="svc-card-desc">${s.desc}</div>
+        ${s.images.length > 1 ? `<div class="img-gallery">${s.images.slice(0,4).map(img=>`<img class="gallery-thumb" src="${img}" onclick="openLightbox('${img}')">`).join('')}</div>` : ''}
+        <div class="svc-card-foot" style="margin-top:14px">
+          <div class="svc-card-price">KES ${s.price.toLocaleString()}</div>
+          <div class="svc-card-dur">⏱ ${s.duration}</div>
+        </div>
+        <a href="booking.html?service=${s.id}"><button class="btn btn-gold" style="width:100%;margin-top:14px;padding:12px;border-radius:40px;font-size:14px">Book This Service</button></a>
+      </div>
+    </div>
+  `).join('');
+}
+renderSvcs();
+</script>
+</body>
+</html>
