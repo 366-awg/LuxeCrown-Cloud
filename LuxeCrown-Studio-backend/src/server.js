@@ -21,8 +21,8 @@ app.use(helmet());
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || 'http://localhost:3000',
-    'https://LuxeCrown-Studio.vercel.app',      // your Vercel domain
-    'https://www.LuxeCrown-Studio.co.ke',       // your custom domain
+    'http://luxecrown-frontend.s3-website-us-east-1.amazonaws.com',      // your Vercel domain
+    'https://LuxeCrown-Studio.vercel.app',       // your custom domain
   ],
   credentials: true,
   methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
@@ -85,7 +85,7 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // ---- Start Server ----
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🚀 LuxeCrown-Studio API running on port ${PORT}`);
   console.log(`   Environment : ${process.env.NODE_ENV}`);
   console.log(`   Health check: http://localhost:${PORT}/health\n`);

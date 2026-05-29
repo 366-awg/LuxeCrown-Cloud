@@ -5,37 +5,27 @@ const { authenticate, requireAdmin } = require('../middleware/auth.middleware');
 const { asyncHandler } = require('../middleware/error.middleware');
 const mpesa = require('../services/mpesa.service');
 
-
-router.get('/', authenticate, asyncHandler(async (req, res) => {
-  const isAdmin = req.user.role === 'admin';
+router.get('/', asyncHandler(async (req, res) => {
   const { status, date, limit = 50, offset = 0 } = req.query;
 
-  let sql = `
-    SELECT b.*, s.icon as service_icon,
-      t.mpesa_receipt, t.status as pay_status
-    FROM bookings b
-    JOIN services s ON s.id = b.service_id
-    LEFT JOIN transactions t ON t.booking_id = b.id AND t.status = 'completed'
-  `;
+  let sql = `SELECT * FROM bookings`;
   const params = [];
   const conditions = [];
 
-  if (!isAdmin) {
-    conditions.push(`b.user_id = $${params.push(req.user.id)}`);
-  }
   if (status) {
-    conditions.push(`b.status = $${params.push(status)}`);
+    conditions.push(`status = $${params.push(status)}`);
   }
   if (date) {
-    conditions.push(`b.booking_date = $${params.push(date)}`);
+    conditions.push(`booking_date = $${params.push(date)}`);
   }
 
   if (conditions.length) sql += ' WHERE ' + conditions.join(' AND ');
-  sql += ` ORDER BY b.created_at DESC LIMIT $${params.push(parseInt(limit))} OFFSET $${params.push(parseInt(offset))}`;
+  sql += ` ORDER BY id DESC LIMIT $${params.push(parseInt(limit))} OFFSET $${params.push(parseInt(offset))}`;
 
   const result = await query(sql, params);
   res.json({ bookings: result.rows, count: result.rowCount });
 }));
+
 
 // ============================================================
 // GET /api/bookings/availability
@@ -84,7 +74,10 @@ router.get('/:id', authenticate, asyncHandler(async (req, res) => {
 // POST /api/bookings
 // Create booking + trigger STK Push
 // ============================================================
-router.post('/', authenticate, asyncHandler(async (req, res) => {
+router.post('/', asyncHandler(async (req, res) => {
+
+  console.log("BOOKING BODY:", req.body);
+
   const {
     service_id, booking_date, booking_time,
     customer_name, customer_email, customer_phone, notes,
@@ -109,6 +102,13 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
   if (!svcResult.rows.length) return res.status(404).json({ error: 'Service not found or inactive.' });
   const service = svcResult.rows[0];
 
+   // Get user_id from email (if exists)
+  let userId = null;
+  if (customer_email) {
+     const userRes = await query('SELECT id FROM users WHERE email = $1', [customer_email]);
+     userId = userRes.rows[0]?.id || null;
+     }
+
   // 3. Create booking (status = pending until payment confirmed)
   const bkResult = await query(
     `INSERT INTO bookings
@@ -117,10 +117,16 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pending')
      RETURNING *`,
     [
-      req.user.id, service_id, service.name, service.price,
-      customer_name || req.user.name,
-      customer_email || req.user.email,
-      customer_phone, booking_date, booking_time, notes || null,
+     userId,
+     service_id,
+     service.name,
+     service.price,
+     customer_name,
+     customer_email,
+     customer_phone,
+     booking_date,
+     booking_time,
+     notes || null,
     ]
   );
   const booking = bkResult.rows[0];
@@ -132,7 +138,7 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
       phone:       customer_phone,
       amount:      service.price,
       bookingId:   booking.id,
-      userId:      req.user.id,
+      userId:      userId,
       description: `LuxeCrown-Studio - ${service.name}`,
     });
   } catch (mpesaErr) {
