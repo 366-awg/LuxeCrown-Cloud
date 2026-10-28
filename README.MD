@@ -78,6 +78,10 @@ flowchart TB
 
 <p align="center"><em>Logical architecture of the deployed environment.</em></p>
 
+## LuxeCrown AWS Architecture
+
+![LuxeCrown AWS Architecture](Screenshots/01-architecture.png)
+
 ## ☁️ AWS Infrastructure
 
 | AWS component | Implementation and purpose |
