@@ -76,12 +76,12 @@ flowchart TB
     class DA,DB,RDS data
 ```
 
-<p align="center"><em>Logical architecture of the deployed environment. CloudFront is not included because it was not implemented.</em></p>
+<p align="center"><em>Logical architecture of the deployed environment.</em></p>
 
 ### Architecture image
 
 ```markdown
-![LuxeCrown AWS Architecture](Screenshots/architecture.png)
+![LuxeCrown AWS Architecture](LuxeCrown-Cloud/Screenshots/architecture.png)
 ```
 
 Replace `docs/architecture.png` with the actual relative path and filename of your diagram. The Mermaid diagram above already renders directly in GitHub, so an external image is optional.
