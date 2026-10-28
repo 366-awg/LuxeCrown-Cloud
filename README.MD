@@ -194,6 +194,11 @@ The goal is not merely to deploy a website, but to understand how AWS services w
 
 ---
 
+## Architecture and Design Decisions
+
+See the [AWS Well-Architected Framework Review](docs/well-architected-review.md)
+for an explanation of the project's operational, security, reliability, performance, and cost considerations.
+
 <p align="center">
   <strong>☁️ Designing infrastructure. Deploying applications. Building for scale.</strong>
 </p>
