@@ -10,7 +10,10 @@ async function seed() {
   try {
     // ---- 1. Create Admin User ----
     const adminEmail = process.env.ADMIN_EMAIL || 'admin@LuxeCrown-Studio.co.ke';
-    const adminPass  = process.env.ADMIN_PASSWORD || 'Admin123!';
+    const adminPass = process.env.ADMIN_PASSWORD;
+if (!adminPass) {
+  throw new Error('ADMIN_PASSWORD must be set in the environment.');
+}
     const adminName  = process.env.ADMIN_NAME || 'LuxeCrown-Studio Admin';
 
     const existing = await query('SELECT id FROM users WHERE email = $1', [adminEmail]);
@@ -23,7 +26,7 @@ async function seed() {
          VALUES ($1, $2, $3, 'admin', TRUE)`,
         [adminName, adminEmail, hash]
       );
-      console.log(`✅ Admin created: ${adminEmail} / ${adminPass}`);
+      console.log(`✅ Admin created: ${adminEmail}`);
     }
 
     // ---- 2. Create Test User ----
@@ -76,7 +79,6 @@ async function seed() {
     console.log('\n🎉 Seeding complete!\n');
     console.log('---------------------------------------------');
     console.log(`Admin login : ${adminEmail}`);
-    console.log(`Password   : ${process.env.ADMIN_PASSWORD || 'Admin123!'}`);
     console.log('---------------------------------------------\n');
     process.exit(0);
   } catch (err) {

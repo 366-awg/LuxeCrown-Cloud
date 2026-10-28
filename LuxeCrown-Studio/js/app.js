@@ -5,17 +5,6 @@ const SESSION_KEY = 'ue_session';
 const BOOKINGS_KEY = 'ue_bookings';
 const SERVICES_KEY = 'ue_services';
 const API_BASE = 'http://localhost:5000/api';
-// Default admin account
-const DEFAULT_ADMIN = { id:'admin001', name:'Admin', email:'admin@luxecrown-studio.co.ke', password:'admin123!', phone:'+254700000000', role:'admin', joined:'2024-01-01' };
-
-// Seed users if empty
-function seedUsers() {
-  let users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
-  if (!users.find(u => u.email === DEFAULT_ADMIN.email)) {
-    users.push(DEFAULT_ADMIN);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  }
-}
 
 // default services
 const DEFAULT_SERVICES = [
@@ -79,7 +68,7 @@ function seedBookings() {
 }
 
 // Init all seeds
-seedUsers(); seedServices(); seedBookings();
+seedServices(); seedBookings();
 
 // ===== AUTH HELPERS =====
 function getSession() {
